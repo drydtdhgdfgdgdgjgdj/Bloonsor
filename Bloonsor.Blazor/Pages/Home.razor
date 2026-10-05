@@ -1,0 +1,79 @@
+﻿@page "/"
+@using Bloonsor.Blazor.Components
+@using Bloonsor.Blazor.Model
+@using System.Timers
+@implements IDisposable
+
+<PageTitle>Bloonsor Game</PageTitle>
+
+<button type="button"
+        @onclick="StartGame">
+    Reload
+</button>
+
+@foreach (var balloon in Balloons)
+{
+    <Bloon Balloon="balloon"
+           OnBalloonPopped="RemoveBalloon"></Bloon>
+}
+
+@code
+{
+    private IList<Balloon> Balloons { get; set; } = new List<Balloon>();
+    private Random Random { get; set; } = new Random();
+    private Timer? Timer { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        Timer = new Timer(TimeSpan.FromSeconds(2));
+        Timer.Elapsed += TimerOnElapsed;
+        Timer.Start();
+
+
+        return base.OnInitializedAsync();
+    }
+
+    private void TimerOnElapsed(object? sender, ElapsedEventArgs e)
+    {
+        if (Balloons.Count >= 10)
+        {
+            return;
+        }
+
+        var balloon = GenerateOneBalloon();
+        Balloons.Add(balloon);
+        StateHasChanged();
+    }
+
+    private void StartGame()
+    {
+        Balloons.Clear();
+        StateHasChanged();
+    }
+
+    private Balloon GenerateOneBalloon()
+    {
+        var left = Random.Next(0, 800);
+        var top = Random.Next(0, 500);
+        var balloonIndex = Random.Next(1, 4);
+
+        return new Balloon
+        {
+            PositionTop = top,
+            PositionLeft = left,
+            ImageFileName = $"balloon{balloonIndex}.png"
+        };
+    }
+
+    private void RemoveBalloon(Balloon balloon)
+    {
+        Balloons.Remove(balloon);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        Timer?.Stop();
+        Timer?.Dispose();
+    }
+}

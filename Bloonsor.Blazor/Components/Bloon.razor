@@ -1,0 +1,22 @@
+﻿@using Bloonsor.Blazor.Model
+
+@if (Balloon is not null)
+{
+    <img style="position:absolute;top:@(Balloon.PositionTop)px;left:@(Balloon.PositionLeft)px;"
+         src="/images/@Balloon.ImageFileName"
+         @onclick="Pop"/>
+}
+
+@code
+{
+    [Parameter]
+    public EventCallback<Balloon> OnBalloonPopped { get; set; }
+
+    [Parameter]
+    public Balloon? Balloon { get; set; }
+
+    private async Task Pop()
+    {
+        await OnBalloonPopped.InvokeAsync(Balloon);
+    }
+}
